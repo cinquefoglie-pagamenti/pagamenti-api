@@ -2,6 +2,7 @@ import { Router } from "express";
 import { query } from "../db";
 import { logger } from "../logger";
 import { euroAStringa } from "../money";
+import { inviaPromemoria } from "../notifiche";
 import { Fattura } from "../types";
 import { interoPositivo } from "../validation";
 
@@ -26,4 +27,23 @@ fatture.post("/", async (req, res) => {
   );
   logger.info("Fattura creata", { id: righe[0].id, clienteId });
   res.status(201).json(righe[0]);
+});
+
+// Invia un promemoria per una fattura non ancora pagata
+fatture.post("/:id/promemoria", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!interoPositivo(id)) {
+    res.status(400).json({ errore: "Identificativo non valido" });
+    return;
+  }
+  const righe = await query<Fattura>(
+    'SELECT id, cliente_id AS "clienteId", pagata FROM fatture WHERE id = $1 AND pagata = false',
+    [id]
+  );
+  if (righe.length === 0) {
+    res.status(404).json({ errore: "Fattura non trovata o già pagata" });
+    return;
+  }
+  const inviato = await inviaPromemoria(righe[0].clienteId, id);
+  res.status(inviato ? 202 : 502).json({ inviato });
 });
