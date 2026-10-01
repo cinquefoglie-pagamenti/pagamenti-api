@@ -7,16 +7,32 @@ import { interoPositivo } from "../validation";
 
 export const fatture = Router();
 
-fatture.get("/", async (_req, res) => {
+const DATA_ISO = /^\d{4}-\d{2}-\d{2}$/;
+
+// Elenco fatture, con filtro opzionale sulla scadenza: ?scadenzaDa=YYYY-MM-DD&scadenzaA=YYYY-MM-DD
+fatture.get("/", async (req, res) => {
+  const { scadenzaDa, scadenzaA } = req.query;
+  for (const valore of [scadenzaDa, scadenzaA]) {
+    if (valore !== undefined && !DATA_ISO.test(String(valore))) {
+      res.status(400).json({ errore: "Data non valida, formato atteso YYYY-MM-DD" });
+      return;
+    }
+  }
+
   const righe = await query<Fattura>(
-    'SELECT id, cliente_id AS "clienteId", importo_centesimi AS "importoCentesimi", scadenza::text AS scadenza, pagata FROM fatture ORDER BY id'
+    `SELECT id, cliente_id AS "clienteId", importo_centesimi AS "importoCentesimi", scadenza::text AS scadenza, pagata
+     FROM fatture
+     WHERE ($1::date IS NULL OR scadenza >= $1::date)
+       AND ($2::date IS NULL OR scadenza <= $2::date)
+     ORDER BY scadenza, id`,
+    [scadenzaDa ?? null, scadenzaA ?? null]
   );
   res.json(righe.map((f) => ({ ...f, importo: euroAStringa(f.importoCentesimi) })));
 });
 
 fatture.post("/", async (req, res) => {
   const { clienteId, importoCentesimi, scadenza } = req.body ?? {};
-  if (!interoPositivo(clienteId) || !interoPositivo(importoCentesimi) || !/^\d{4}-\d{2}-\d{2}$/.test(String(scadenza))) {
+  if (!interoPositivo(clienteId) || !interoPositivo(importoCentesimi) || !DATA_ISO.test(String(scadenza))) {
     res.status(400).json({ errore: "Dati fattura non validi" });
     return;
   }
