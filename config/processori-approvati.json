@@ -1,0 +1,9 @@
+{
+  "versione": "2025-06",
+  "approvato_da": "DPO",
+  "processori": [
+    { "nome": "Hosting applicativo", "host": "api.hosting-ue.example.eu", "regione": "EU (Francoforte)" },
+    { "nome": "Invio email transazionali", "host": "mail.posta-ue.example.eu", "regione": "EU (Milano)" },
+    { "nome": "Conservazione sostitutiva", "host": "archivio.conservazione.example.it", "regione": "IT" }
+  ]
+}
