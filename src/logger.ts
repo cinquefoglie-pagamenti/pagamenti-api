@@ -9,7 +9,17 @@ export function maschera(valore: string): string {
 type Livello = "debug" | "info" | "warn" | "error";
 
 function scrivi(livello: Livello, messaggio: string, contesto?: Record<string, unknown>): void {
-  console.log(JSON.stringify({ ts: new Date().toISOString(), livello, messaggio, contesto }));
+  const CHIAVI_SENSIBILI = /codice_?fiscale|iban|email/i;
+  const contestoSicuro = contesto && Object.fromEntries(
+    Object.entries(contesto).map(([chiave, valore]) => {
+      if (valore instanceof Error) return [chiave, { nome: valore.name, messaggio: valore.message }];
+      if (CHIAVI_SENSIBILI.test(chiave)) {
+        return [chiave, typeof valore === "string" && valore.includes("*") ? valore : "[REDATTO]"];
+      }
+      return [chiave, valore];
+    })
+  );
+  console.log(JSON.stringify({ ts: new Date().toISOString(), livello, messaggio, contesto: contestoSicuro }));
 }
 
 export const logger = {

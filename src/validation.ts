@@ -14,5 +14,5 @@ export function testoValido(v: unknown, max = 200): v is string {
 }
 
 export function interoPositivo(v: unknown): v is number {
-  return typeof v === "number" && Number.isInteger(v) && v > 0;
+  return typeof v === "number" && Number.isSafeInteger(v) && v > 0 && v <= 2147483647;
 }
