@@ -7,7 +7,7 @@ import { codiceFiscaleValido, emailValida, testoValido } from "../validation";
 export const clienti = Router();
 
 clienti.get("/", async (_req, res) => {
-  const righe = await query<Cliente>(
+  const righe = await query<Pick<Cliente, "id" | "ragioneSociale" | "codiceFiscale">>(
     `SELECT id, ragione_sociale AS "ragioneSociale", LEFT(codice_fiscale, 3) || REPEAT('*', 12) || RIGHT(codice_fiscale, 1) AS "codiceFiscale" FROM clienti ORDER BY id LIMIT 100`
   );
   res.json(righe);
