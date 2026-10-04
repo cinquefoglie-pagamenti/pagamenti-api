@@ -13,5 +13,8 @@ export function euroAStringa(centesimi: number): string {
 
 // Applica un'aliquota in punti base (2200 = 22%) usando solo aritmetica intera.
 export function conIva(centesimi: number, aliquotaPuntiBase: number): number {
-  return centesimi + Math.round((centesimi * aliquotaPuntiBase) / 10000);
+  const prodotto = BigInt(centesimi) * BigInt(aliquotaPuntiBase);
+  const segno = prodotto < 0n ? -1n : 1n;
+  const imposta = segno * ((segno * prodotto + 5000n) / 10000n);
+  return centesimi + Number(imposta);
 }

@@ -8,7 +8,7 @@ export const clienti = Router();
 
 clienti.get("/", async (_req, res) => {
   const righe = await query<Cliente>(
-    'SELECT id, ragione_sociale AS "ragioneSociale", codice_fiscale AS "codiceFiscale", email FROM clienti ORDER BY id'
+    `SELECT id, ragione_sociale AS "ragioneSociale", LEFT(codice_fiscale, 3) || REPEAT('*', 12) || RIGHT(codice_fiscale, 1) AS "codiceFiscale" FROM clienti ORDER BY id LIMIT 100`
   );
   res.json(righe);
 });
