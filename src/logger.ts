@@ -2,7 +2,7 @@
 // Per i dati personali (codice fiscale, IBAN, email) usare sempre maschera() prima di loggare.
 
 export function maschera(valore: string): string {
-  if (valore.length <= 4) return "***";
+  if (valore.length <= 8) return "***";
   return valore.slice(0, 3) + "*".repeat(valore.length - 4) + valore.slice(-1);
 }
 
