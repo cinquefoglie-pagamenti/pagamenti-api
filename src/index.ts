@@ -4,6 +4,7 @@ import { clienti } from "./routes/clienti";
 import { fatture } from "./routes/fatture";
 
 const app = express();
+app.disable("x-powered-by");
 app.use(express.json({ limit: "100kb" }));
 
 app.get("/salute", (_req, res) => {

@@ -1,6 +1,13 @@
 import { Pool, QueryResultRow } from "pg";
 
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL non definita");
+}
+
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+pool.on("error", (err) => {
+  console.error(JSON.stringify({ ts: new Date().toISOString(), livello: "error", messaggio: "Errore sul pool PostgreSQL", errore: err.message }));
+});
 pool.on("error", (err) => {
   console.error(JSON.stringify({ ts: new Date().toISOString(), livello: "error", messaggio: "Errore sul client idle del pool", errore: err.message }));
 });
